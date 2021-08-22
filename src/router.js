@@ -3,18 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route, useHistory, useLocation } from 'react-router-dom';
 import { jsx } from '@emotion/react'
-import { BottomNavigation, BottomNavigationAction, ThemeProvider } from '@material-ui/core';
+import { BottomNavigation, BottomNavigationAction, ThemeProvider, Slide } from '@material-ui/core';
 import { HomeRounded } from '@material-ui/icons';
 import theme from './assets/theme';
 
 // pages
-import Home from './pages/home';
-import Detail from './pages/pokedex';
-import MyList from './pages/myList';
-
-import RestoreIcon from '@material-ui/icons/Restore';
-import FavoriteIcon from '@material-ui/icons/Favorite';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+import Home from './pages/Home';
+import Pokedex from './pages/Pokedex';
+import MyList from './pages/MyList';
+import Detail from './pages/Detail';
 
 // assets
 import homeGray from './assets/icons/home-gray.svg';
@@ -60,9 +57,6 @@ const Router = () => {
         '& .Mui-selected': {
           '& .MuiBottomNavigationAction-wrapper': {
             opacity: 1,
-            // '& img': {
-            //   transform: 'scale(1.2)'
-            // }
           }
         }
       },
@@ -77,24 +71,6 @@ const Router = () => {
       height: 24,
       objectFit: 'cover',
       objectPosition: 'center',
-      // transition: '0.2s 0.1s',
-      // marginBottom: 3,
-      // '&::before': {
-      //   content: '',
-      //   display: 'inline-block'
-      // }
-    }
-  };
-
-  const selectedMenu = (n, pic1, pic2) => {
-    if(page === n) {
-      return (
-        <div css={classes.iconContainer}>
-          <img src={pic2} css={classes.icon} />
-        </div>
-      );
-    } else {
-      return <img src={pic1} css={classes.icon} style={{marginBottom:6}} />;
     }
   };
 
@@ -114,21 +90,24 @@ const Router = () => {
     <ThemeProvider theme={theme}>
       <Switch>
         <Route exact path='/' component={Home} />
-        <Route exact path='/pokedex' component={Detail} />
+        <Route exact path='/pokedex' component={Pokedex} />
         <Route exact path='/my-pokemon-list' component={MyList} />
+        <Route exact path='/detail/:id' component={Detail} />
       </Switch>
-      <BottomNavigation
-        value={page}
-        onChange={(event, newValue) => {
-          setPage(newValue);
-        }}
-        showLabels
-        css={classes.navigation}
-      >
-        <BottomNavigationAction label="Home" icon={<div css={classes.iconContainer} style={{backgroundColor: page===0 ? '#2A3050' : '#343E63'}}><img src={page===0 ? homeYellow : homeGray} css={classes.icon} /></div>} onClick={() => history.push('/')} />
-        <BottomNavigationAction label="Pokédex" icon={<div css={classes.iconContainer} style={{backgroundColor: page===1 ? '#2A3050' : '#343E63'}}><img src={page===1 ? pokeballYellow : pokeballGray} css={classes.icon} /></div>} onClick={() => history.push('/pokedex')} />
-        <BottomNavigationAction label="My Pokémon List" icon={<div css={classes.iconContainer} style={{backgroundColor: page===2 ? '#2A3050' : '#343E63'}}><img src={page===2 ? pokemonYellow : pokemonGray} css={classes.icon} /></div>} onClick={() => history.push('/my-pokemon-list')} />
-      </BottomNavigation>
+      <Slide direction='up' in={!location.pathname.includes('/detail')} mountOnEnter unmountOnExit>
+        <BottomNavigation
+          value={page}
+          onChange={(event, newValue) => {
+            setPage(newValue);
+          }}
+          showLabels
+          css={classes.navigation}
+        >
+          <BottomNavigationAction label="Home" icon={<div css={classes.iconContainer} style={{backgroundColor: page===0 ? '#2A3050' : '#343E63'}}><img src={page===0 ? homeYellow : homeGray} css={classes.icon} /></div>} onClick={() => history.push('/')} />
+          <BottomNavigationAction label="Pokédex" icon={<div css={classes.iconContainer} style={{backgroundColor: page===1 ? '#2A3050' : '#343E63'}}><img src={page===1 ? pokeballYellow : pokeballGray} css={classes.icon} /></div>} onClick={() => history.push('/pokedex')} />
+          <BottomNavigationAction label="My Pokémon List" icon={<div css={classes.iconContainer} style={{backgroundColor: page===2 ? '#2A3050' : '#343E63'}}><img src={page===2 ? pokemonYellow : pokemonGray} css={classes.icon} /></div>} onClick={() => history.push('/my-pokemon-list')} />
+        </BottomNavigation>
+      </Slide>
     </ThemeProvider>
   );
 };

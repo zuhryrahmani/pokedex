@@ -8,11 +8,11 @@ import { useHistory } from 'react-router-dom';
 import { DoubleArrowRounded } from '@material-ui/icons';
 
 // components
-import Button from '../components/Button';
+import Button from '../../components/Button';
 
 // assets
-import cover from '../assets/images/pikachu-cover.png';
-import pokeball from '../assets/images/pokeball-cover.png';
+import cover from '../../assets/images/pikachu-cover.png';
+import pokeball from '../../assets/images/pokeball-cover.png';
 
 const Home = () => {
 
@@ -35,7 +35,6 @@ const Home = () => {
       left: 0,
       right: 0,
       borderRadius: '100%/100px 100px 0 0',
-      color: '#EFF2FC',
       padding: '50px 0 80px',
     },
     center: {

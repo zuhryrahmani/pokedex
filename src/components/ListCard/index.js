@@ -3,7 +3,7 @@
 import React from 'react';
 import { jsx } from '@emotion/react';
 
-const Card = ({name='Pokemon', id}) => {
+const Card = ({name='Pokemon', id='001', onClick}) => {
 
   const breakpoints = [576, 768, 992, 1200];
   const mw = breakpoints.map(bp => `@media (max-width: ${bp}px)`);
@@ -52,7 +52,6 @@ const Card = ({name='Pokemon', id}) => {
       }
     },
     name: {
-      color: '#EFF2FC',
       fontSize: 20,
       fontWeight: 400,
       [mw[0]]: {
@@ -69,8 +68,8 @@ const Card = ({name='Pokemon', id}) => {
   };
 
   return(
-    <div css={classes.card}>
-      <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`} css={classes.img} />
+    <div css={classes.card} onClick={onClick}>
+      <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`} alt={name} css={classes.img} />
       <div css={classes.cardInfo}>
         <p css={classes.name}>{name}</p>
         <p css={classes.id}>#{id}</p>

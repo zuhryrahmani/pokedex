@@ -1,7 +1,11 @@
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Lato', sans-serif;
   box-sizing: border-box;
-  color: #18242e;
+  color: #EFF2FC;
   background-color: #2A3050;
   margin: 0;
   padding: 0;
