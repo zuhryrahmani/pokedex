@@ -33,6 +33,7 @@ const Router = () => {
     navigation: {
       '&.MuiBottomNavigation-root': {
         position: 'fixed',
+        zIndex: 3,
         bottom: 0,
         left: 0,
         right: 0,

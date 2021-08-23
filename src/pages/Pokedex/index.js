@@ -86,6 +86,7 @@ const Detail = () => {
   const [next, setNext] = useState(null);
   const [prev, setPrev] = useState(null);
   const [scroll, setScroll] = useState(0);
+  const [count, setCount] = useState(0);
 
   const generateData = () => {
     axios.get(next)
@@ -105,6 +106,7 @@ const Detail = () => {
   };
 
   useEffect(() => {
+    document.title = 'Pokédex';
     axios.get('https://pokeapi.co/api/v2/pokemon/?offset=0&limit=20')
       .then(res => {
         setData(res.data.results);
@@ -122,6 +124,12 @@ const Detail = () => {
     };
   }, [data]);
 
+  useEffect(() => {
+    if(localStorage) {
+      setCount(JSON.parse(localStorage.getItem('pokemon-list')).length);
+    };
+  }, [localStorage]);
+
   window.onscroll = () => {
     if(document.scrollingElement.scrollTop) {
       setScroll(document.scrollingElement.scrollTop);
@@ -130,9 +138,7 @@ const Detail = () => {
 
   return (
     <Container>
-      <div css={classes.count}>
-        0
-      </div>
+      <div css={classes.count}>{count}</div>
       <div style={{display:'flex'}}>
         <div style={{width:'50%'}}>
           <h1 css={classes.title}>Pokédex</h1>

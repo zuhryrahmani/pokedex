@@ -11,6 +11,7 @@ const Container = ({children, paddingBottom='150px', style}) => {
     width: 1000,
     margin: '0 auto',
     padding: `40px 0 ${paddingBottom}`,
+    boxSizing: 'border-box',
     [mw[3]]: {
       width: 740
     },

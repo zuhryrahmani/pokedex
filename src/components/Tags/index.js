@@ -21,7 +21,16 @@ const Tags = ({type='type'}) => {
     fontWeight: 700,
     fontSize: 18,
     boxShadow: '0 0 15px 7px rgba(0,0,0,0.1)',
-    textShadow: '0 0 10px rgba(0,0,0,0.8)'
+    textShadow: '0 0 10px rgba(0,0,0,0.8)',
+    [mw[3]]: {
+      width: 135,
+    },
+    [mw[1]]: {
+      width: 95,
+    },
+    [mw[0]]: {
+      width: 130,
+    }
   };
 
   return(
