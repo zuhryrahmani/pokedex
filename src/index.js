@@ -3,13 +3,16 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import Router from './router';
+import Hooks from './providers';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Router />
-    </BrowserRouter>
+    <Hooks>
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </Hooks>
   </React.StrictMode>,
   document.getElementById('root')
 );
