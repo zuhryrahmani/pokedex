@@ -4,14 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import './index.css';
 import Router from './router';
 import reportWebVitals from './reportWebVitals';
-import Hooks from "./providers";
+
 ReactDOM.render(
   <React.StrictMode>
-<Hooks>
-<BrowserRouter>
+    <BrowserRouter>
       <Router />
     </BrowserRouter>
-</Hooks>
   </React.StrictMode>,
   document.getElementById('root')
 );
