@@ -33,7 +33,10 @@ const Detail = () => {
       color: '#F7B916',
       textAlign: 'right',
       marginRight: 10,
-      fontWeight: 300
+      fontWeight: 300,
+      [mw[0]]: {
+        fontSize: 14,
+      }
     },
     list: {
       display: 'flex',
@@ -126,7 +129,10 @@ const Detail = () => {
 
   useEffect(() => {
     if(localStorage) {
-      setCount(JSON.parse(localStorage.getItem('pokemon-list')).length);
+      const storage = JSON.parse(localStorage.getItem('pokemon-list'));
+      if(storage) {
+        setCount(storage.length);
+      };
     };
   }, [localStorage]);
 

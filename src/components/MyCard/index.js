@@ -6,10 +6,17 @@ import { jsx } from '@emotion/react';
 // components
 import Button from '../Button';
 
-const Card = ({name='Pokemon', id='001', onClick, style}) => {
+// helpers
+import roundingNumber from '../../helpers/roundingNumber';
+import formatName from '../../helpers/formatName';
+import typeColor from '../../helpers/typeColor';
+
+const Card = ({nickname, data, onClick, style, handleRelease}) => {
 
   const breakpoints = [576, 768, 992, 1200];
+  const breakpointsHeight = [610];
   const mw = breakpoints.map(bp => `@media (max-width: ${bp}px)`);
+  const mh = breakpointsHeight.map(bp => `@media (max-height: ${bp}px)`);
   const classes = {
     card: {
       width: 'fit-content',
@@ -21,13 +28,18 @@ const Card = ({name='Pokemon', id='001', onClick, style}) => {
     },
     cardInfo: {
       width: 240,
-      height: 270,
+      height: 280,
       backgroundColor: '#343E63',
       borderRadius: 25,
       paddingTop: 100,
       boxSizing: 'border-box',
       textAlign: 'center',
-      position: 'relative'
+      position: 'relative',
+      [mh[0]]: {
+        width: 190,
+        height: 220,
+        paddingTop: 60
+      }
     },
     img: {
       height: 200,
@@ -39,92 +51,110 @@ const Card = ({name='Pokemon', id='001', onClick, style}) => {
       top: 0,
       left: '50%',
       transform: 'translateX(-50%)',
-      filter: 'drop-shadow(5px 10px 10px rgba(0,0,0,0.4))'
+      filter: 'drop-shadow(5px 10px 10px rgba(0,0,0,0.4))',
+      [mh[0]]: {
+        width: 160,
+        height: 160
+      }
+    },
+    nickname: {
+      fontSize: 20,
+      fontWeight: 700,
+      marginBottom: 10,
+      color: '#F7B916',
+      [mh[0]]: {
+        fontSize: 16
+      }
     },
     nameContainer: {
       display:'flex',
       justifyContent:'center',
-      marginBottom: 20
+      marginBottom: 10
     },
     name: {
-      fontSize: 20,
-      fontWeight: 400,
-      fontWeight: 700,
-      marginRight: 10
+      fontSize: 16,
+      marginRight: 10,
+      [mh[0]]: {
+        fontSize: 14,
+        marginTop: 2
+      }
     },
-    // id: {
-    //   color: '#8e9ac4',
-    //   fontSize: 14
-    // },
     tags: {
       display: 'flex',
       justifyContent: 'space-evenly'
     },
     tag: {
-      width: 20,
-      height: 20,
+      width: 16,
+      height: 16,
       borderRadius: '50%',
-      fontSize: 14,
+      fontSize: 12,
       fontWeight: 900,
       textAlign: 'center',
-      lineHeight: '20px',
+      lineHeight: '16px',
       display: 'inline-block',
       margin: '3px 3px',
       boxShadow: '0 0 10px 2px rgba(0,0,0,0.3)',
       color: 'rgba(0,0,0,0.6)',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      [mh[0]]: {
+        width: 14,
+        height: 14,
+        fontSize: 10,
+        lineHeight: '14px',
+        margin: '0 3px 0'
+      }
     },
     title: {
       fontSize: 14,
       fontWeight: 300,
-      marginBottom: 3
+      marginBottom: 3,
+      [mh[0]]: {
+        fontSize: 12
+      }
     },
     info: {
-      color: '#F7B916'
+      color: '#F7B916',
+      [mh[0]]: {
+        fontSize: 14
+      }
     }
   };
 
   return(
     <div css={classes.card} onClick={onClick} style={style}>
-      <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png`} alt='Bulbasaur' css={classes.img} />
+      <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${roundingNumber(data && data.id)}.png`} alt='Bulbasaur' css={classes.img} />
       <div css={classes.cardInfo}>
+        <div css={classes.nickname}>{nickname}</div>
         <div css={classes.nameContainer}>
           <div>
-            <p css={classes.name}>Bulbasaur</p>
+            <p css={classes.name}>{data && formatName(data.name)}</p>
           </div>
           <div>
-            <span css={classes.tag} style={{backgroundColor:'#9BCC50'}} title='Grass'>G</span>
-            <span css={classes.tag} style={{backgroundColor:'#BA80CA'}} title='Poison'>P</span>
+            {data && data.types.map(item => <span css={classes.tag} style={{backgroundColor:typeColor(item.type.name)}} title={formatName(item.type.name)}>{formatName(item.type.name)[0]}</span>)}
           </div>
         </div>
-        
-        {/* <p css={classes.id}>#001</p> */}
-        {/* <div css={classes.tags}>
-          <div css={classes.tag} style={{backgroundColor:'#9BCC50'}}>Grass</div>
-          <div css={classes.tag} style={{backgroundColor:'#BA80CA'}}>Poison</div>
-        </div> */}
-        <div style={{display:'flex', marginBottom:15}}>
+        <div style={{display:'flex', marginBottom:10}}>
           <div style={{width:'50%'}}>
             <div css={classes.title}>Height</div>
-            <div css={classes.info}>0.7 m</div>
+            <div css={classes.info}>{data.height/10} m</div>
           </div>
           <div style={{width:'50%'}}>
             <div css={classes.title}>Weight</div>
-            <div css={classes.info}>6.9 kg</div>
+            <div css={classes.info}>{data.weight/10} kg</div>
           </div>
         </div>
         <div style={{display:'flex'}}>
           <div style={{width:`${100/3}%`}}>
             <div css={classes.title}>HP</div>
-            <div css={classes.info}>45</div>
+            <div css={classes.info}>{data.stats[0].base_stat}</div>
           </div>
           <div style={{width:`${100/3}%`}}>
             <div css={classes.title}>Attack</div>
-            <div css={classes.info}>49</div>
+            <div css={classes.info}>{data.stats[1].base_stat}</div>
           </div>
           <div style={{width:`${100/3}%`}}>
             <div css={classes.title}>Defense</div>
-            <div css={classes.info}>49</div>
+            <div css={classes.info}>{data.stats[2].base_stat}</div>
           </div>
         </div>
         <Button
@@ -137,6 +167,7 @@ const Card = ({name='Pokemon', id='001', onClick, style}) => {
             bottom: -16,
             transform: 'translateX(-50%)'
           }}
+          onClick={handleRelease}
         />
       </div>
     </div>

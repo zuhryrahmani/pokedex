@@ -31,7 +31,7 @@ const Card = ({name='Pokemon', id='001', onClick}) => {
       boxSizing: 'border-box',
       textAlign: 'center',
       [mw[0]]: {
-        width: 150,
+        width: 130,
         height: 110,
         paddingTop: 70
       }

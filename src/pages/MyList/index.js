@@ -8,11 +8,16 @@ import axios from 'axios';
 // components
 import Container from '../../components/Container';
 import MyCard from '../../components/MyCard';
+import { OpenWithOutlined } from '@material-ui/icons';
+import { useContext } from 'react';
+import { Hooks } from '../../providers';
 
 const MyList = () => {
 
   const breakpoints = [576, 768, 992, 1200];
+  const breakpointsHeight = [610];
   const mw = breakpoints.map(bp => `@media (max-width: ${bp}px)`);
+  const mh = breakpointsHeight.map(bp => `@media (max-height: ${bp}px)`);
   const classes = {
     outerContainer: {
       display:'flex',
@@ -28,20 +33,27 @@ const MyList = () => {
         fontSize: 24,
       }
     },
+    desc: {
+      marginBottom: 10,
+      [mw[0]]: {
+        fontSize: 14
+      }
+    },
     container: {
-      border: '1px solid red',
       flex: 'auto',
       display: 'flex'
     },
     center: {
-      border: '1px solid red',
       margin: 'auto',
-      height: 390,
+      height: 400,
       width: '100%',
       overflowY: 'hidden',
       overflowX: 'auto',
       '&::-webkit-scrollbar': {
         display: 'none'
+      },
+      [mh[0]]: {
+        height: 340
       }
     },
     scroll: {
@@ -52,27 +64,127 @@ const MyList = () => {
   };
 
   const [owned, setOwned] = useState([]);
-  const [species, setSpecies] = useState(0);
+  const [species, setSpecies] = useState([]);
+  const [data, setData] = useState([]);
+  const [results, setResults] = useState([]);
+  console.log('LOOK DATA', data, data.length);
+  console.log('LOOK SPECIES', species);
+  console.log('LOOK OWNED', owned);
+  console.log('LOOK RESULTS', results, results.length);
+
+  const handleRelease = (item) => {
+    const newArr = owned.filter(data => data.name !== item.nickname);
+    setOwned(newArr);
+    localStorage.setItem('pokemon-list', JSON.stringify(newArr));
+  }
+  const {result, setResult
+   } = useContext(Hooks)
 
   useEffect(() => {
     if(localStorage) {
       const storage = JSON.parse(localStorage.getItem('pokemon-list'));
-      setOwned(storage);
-      const newSet = new Set(storage.map(item => item.species));
-      setSpecies([...newSet].length);
+      if(storage) {
+        setOwned(storage);
+        const newSet = new Set(storage.map(item => item.species));
+        setSpecies([...newSet]);
+      };
     };
   }, [localStorage]);
 
+
+  useEffect( async () => {
+    console.log(species.length, "hmm")
+    if(species.length > 0) {
+      
+       species.forEach( async (item, i) => {
+        let data = await axios.get(`https://pokeapi.co/api/v2/pokemon/${item}`)
+          .then(res => {
+            // console.log(res.data, 'testing')
+            setResult([...result, ...res.data])
+            console.log('testing khusus', result)
+            return
+          })
+          .catch(err => {
+            console.log(err);
+          });
+
+      });
+      console.log(result, 'testing')
+      console.log(result.length, 'testing')
+      console.log(result[0], 'testing')
+      // setData(result);
+      
+      // for(let i=0; i<species.length; i++) {
+      //   if(i === 0) {
+      //     axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i]}`)
+      //       .then(res => {
+      //         setData([res.data]);
+      //         if(i+1 !== species.length) {
+      //           axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i+1]}`)
+      //             .then(res => {
+      //               setData([...data, res.data])
+      //             })
+      //             .catch(err => {
+      //               console.log(err);
+      //             });
+      //         };
+      //       })
+      //       .catch(err => {
+      //         console.log(err);
+      //       });
+      //   };
+      // };
+      // let i = 0;
+      // while(i < species.length) {
+      //   axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i]}`)
+      //     .then(res => {
+      //       setData([...data, res.data]);
+      //     })
+      //     .catch(err => {
+      //       console.log(err);
+      //       break;
+      //     });
+      //   i++;
+      // };
+    };
+  }, [species]);
+
+  // useEffect(() => {
+  //   if(owned && species.length > 0 && data.length > 0) {
+  //     const arr = owned.map(item => {
+  //       let obj;
+  //       data.map(data => {
+  //         if(item.species === data.name) {
+  //           obj = {
+  //             nickname: item.name,
+  //             data: data
+  //           };
+  //         };
+  //       });
+  //       return obj;
+  //     });
+  //     setResults(arr);
+  //   };
+  // }, [owned]);
+
   return (
     <div css={classes.outerContainer}>
+      {console.log(result, "testing2")}
       <Container style={{paddingBottom:0, display:'flex', flexDirection:'column'}}>
         <h1 css={classes.title}>My Pokémon List</h1>
-        <p style={{marginBottom:10}}>You have captured <span style={{color:'#F7B916'}}>{owned.length}</span> pokémons in total. While there are 898 pokémon species out in the wild, you have caught <span style={{color:'#F7B916'}}>{species}</span> of them.</p>
+        <p css={classes.desc}>You have captured <span style={{color:'#F7B916'}}>{owned.length}</span> pokémons in total. While there are 898 pokémon species out in the wild, you have caught <span style={{color:'#F7B916'}}>{species.length}</span> of them.</p>
       </Container>
       <div css={classes.container}>
         <div css={classes.center}>
           <div css={classes.scroll}>
-            {[0,1,2,3,4,5,6,7,8,9].map((item, i) => <MyCard style={{margin:`0 20px 0 ${i===0 ? '20px' : 0}`}} />)}
+            {results.map((item, i) => (
+              <MyCard
+                data={item.data}
+                nickname={item.nickname}
+                style={{margin:`0 20px 0 ${i===0 ? '20px' : 0}`}}
+                handleRelease={() => handleRelease(item)}
+              />
+            ))}
           </div>
         </div>
       </div>
