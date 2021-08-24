@@ -7,11 +7,11 @@ import reportWebVitals from './reportWebVitals';
 import Hooks from "./providers";
 ReactDOM.render(
   <React.StrictMode>
-<Hooks>
-<BrowserRouter>
-      <Router />
-    </BrowserRouter>
-</Hooks>
+    <Hooks>
+      <BrowserRouter>
+        <Router />
+      </BrowserRouter>
+    </Hooks>
   </React.StrictMode>,
   document.getElementById('root')
 );

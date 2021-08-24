@@ -1,16 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // main
 /** @jsxImportSource @emotion/react */
-import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
 import { css, jsx } from '@emotion/react';
 import axios from 'axios';
+import { Hooks } from '../../providers';
 
 // components
 import Container from '../../components/Container';
 import MyCard from '../../components/MyCard';
-import { OpenWithOutlined } from '@material-ui/icons';
-import { useContext } from 'react';
-import { Hooks } from '../../providers';
 
 const MyList = () => {
 
@@ -65,20 +63,17 @@ const MyList = () => {
 
   const [owned, setOwned] = useState([]);
   const [species, setSpecies] = useState([]);
-  const [data, setData] = useState([]);
   const [results, setResults] = useState([]);
-  console.log('LOOK DATA', data, data.length);
-  console.log('LOOK SPECIES', species);
-  console.log('LOOK OWNED', owned);
-  console.log('LOOK RESULTS', results, results.length);
+  const {data, setData} = useContext(Hooks);
 
   const handleRelease = (item) => {
     const newArr = owned.filter(data => data.name !== item.nickname);
+    const newSet = new Set(newArr.map(data => data.species));
     setOwned(newArr);
+    setSpecies([...newSet]);
+    setData(data.filter(int => int.name !== item.nickname));
     localStorage.setItem('pokemon-list', JSON.stringify(newArr));
   }
-  const {result, setResult
-   } = useContext(Hooks)
 
   useEffect(() => {
     if(localStorage) {
@@ -93,83 +88,46 @@ const MyList = () => {
 
 
   useEffect( async () => {
-    console.log(species.length, "hmm")
-    if(species.length > 0) {
-      
-       species.forEach( async (item, i) => {
-        let data = await axios.get(`https://pokeapi.co/api/v2/pokemon/${item}`)
-          .then(res => {
-            // console.log(res.data, 'testing')
-            setResult([...result, ...res.data])
-            console.log('testing khusus', result)
-            return
-          })
-          .catch(err => {
-            console.log(err);
+    species.length > 0 && species.forEach((item, i) => {
+      axios.get(`https://pokeapi.co/api/v2/pokemon/${item}`)
+      .then(res => {
+        setData(oldArr => {
+          const arr = [];
+          oldArr.map(item => {
+            if(item.name !== res.data.name) {
+              arr.push(item);
+            };
           });
-
+          return [...arr, res.data];
+        })
+        return
+      })
+      .catch(err => {
+        console.log(err);
       });
-      console.log(result, 'testing')
-      console.log(result.length, 'testing')
-      console.log(result[0], 'testing')
-      // setData(result);
-      
-      // for(let i=0; i<species.length; i++) {
-      //   if(i === 0) {
-      //     axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i]}`)
-      //       .then(res => {
-      //         setData([res.data]);
-      //         if(i+1 !== species.length) {
-      //           axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i+1]}`)
-      //             .then(res => {
-      //               setData([...data, res.data])
-      //             })
-      //             .catch(err => {
-      //               console.log(err);
-      //             });
-      //         };
-      //       })
-      //       .catch(err => {
-      //         console.log(err);
-      //       });
-      //   };
-      // };
-      // let i = 0;
-      // while(i < species.length) {
-      //   axios.get(`https://pokeapi.co/api/v2/pokemon/${species[i]}`)
-      //     .then(res => {
-      //       setData([...data, res.data]);
-      //     })
-      //     .catch(err => {
-      //       console.log(err);
-      //       break;
-      //     });
-      //   i++;
-      // };
-    };
+    });
   }, [species]);
 
-  // useEffect(() => {
-  //   if(owned && species.length > 0 && data.length > 0) {
-  //     const arr = owned.map(item => {
-  //       let obj;
-  //       data.map(data => {
-  //         if(item.species === data.name) {
-  //           obj = {
-  //             nickname: item.name,
-  //             data: data
-  //           };
-  //         };
-  //       });
-  //       return obj;
-  //     });
-  //     setResults(arr);
-  //   };
-  // }, [owned]);
+  useEffect(() => {
+    if(owned && species && data.length > 0) {
+      const arr = owned.map(item => {
+        let obj;
+        data.map(int => {
+          if(item.species === int.name) {
+            obj = {
+              nickname: item.name,
+              data: int
+            };
+          };
+        });
+        return obj;
+      });
+      setResults(arr.filter(item => item));
+    };
+  }, [owned, data]);
 
   return (
     <div css={classes.outerContainer}>
-      {console.log(result, "testing2")}
       <Container style={{paddingBottom:0, display:'flex', flexDirection:'column'}}>
         <h1 css={classes.title}>My Pokémon List</h1>
         <p css={classes.desc}>You have captured <span style={{color:'#F7B916'}}>{owned.length}</span> pokémons in total. While there are 898 pokémon species out in the wild, you have caught <span style={{color:'#F7B916'}}>{species.length}</span> of them.</p>
