@@ -5,6 +5,7 @@ import { useParams, useHistory, useLocation } from 'react-router-dom';
 import { css, jsx } from '@emotion/react';
 import { Button, Slide } from '@material-ui/core';
 import { KeyboardBackspaceRounded, CheckRounded, ClearRounded } from '@material-ui/icons';
+import { Skeleton } from '@material-ui/lab';
 import axios from 'axios';
 
 // components
@@ -12,6 +13,8 @@ import Container from '../../components/Container';
 import Tags from '../../components/Tags';
 import AddNameModal from '../../components/Modals/AddNameModal';
 import ResultModal from '../../components/Modals/ResultModal';
+import Chart from '../../components/Chart';
+import Loading from '../../components/Loading';
 
 // helpers
 import formatName from '../../helpers/formatName';
@@ -31,6 +34,8 @@ const Detail = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [failModal, setFailModal] = useState(false);
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingCapture, setLoadingCapture] = useState(false);
 
   const breakpoints = [576, 768, 992, 1200];
   const mw = breakpoints.map(bp => `@media (max-width: ${bp}px)`);
@@ -96,6 +101,15 @@ const Detail = () => {
       },
       [mw[0]]: {
         marginBottom: 25
+      },
+      '& .MuiSkeleton-root': {
+        height: 478,
+        [mw[1]]: {
+          height: 403,
+        },
+        [mw[0]]: {
+          height: 303,
+        }
       }
     },
     nameImg: {
@@ -139,6 +153,20 @@ const Detail = () => {
         marginBottom: 30,
         justifyContent: types.length < 2 ? 'center' : 'space-around',
         paddingRight: 0,
+      },
+      '& .MuiSkeleton-root': {
+        width: 170,
+        height: 35,
+        borderRadius: 25,
+        [mw[3]]: {
+          width: 135,
+        },
+        [mw[1]]: {
+          width: 95,
+        },
+        [mw[0]]: {
+          width: 130,
+        }
       }
     },
     right: {
@@ -154,6 +182,13 @@ const Detail = () => {
       fontWeight: 300,
       [mw[0]]: {
         fontSize: 12
+      },
+      '& .MuiSkeleton-root': {
+        width: 100,
+        margin: '0 auto',
+        [mw[1]]: {
+          width: 60
+        },
       }
     },
     info: {
@@ -161,13 +196,56 @@ const Detail = () => {
       color: '#F7B916',
       [mw[0]]: {
         fontSize: 16
+      },
+      '& .MuiSkeleton-root': {
+        width: 100,
+        margin: '0 auto',
+        [mw[1]]: {
+          width: 60
+        },
+      }
+    },
+    stats: {
+      marginTop: 50,
+      position: 'relative',
+      overflow: 'hidden',
+      [mw[1]]: {
+        height: 460,
+      },
+      [mw[0]]: {
+        marginTop: 40,
+        height: 255
+      }
+    },
+    chart: {
+      [mw[1]]: {
+        width: 740,
+        height: 460,
+        position: loading ? 'static' : 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: loading ? 'none' : 'translate(-50%, -50%)'
+      },
+      [mw[0]]: {
+        width: loading ? '100%' : 400,
+        height: 255,
+        position: loading ? 'static' : 'absolute',
+        top: '50%',
+        left: '53%',
+        transform: loading ? 'none' : 'translate(-50%, -50%)'
+      },
+      '& .MuiSkeleton-root': {
+        height: 621,
+        [mw[3]]: {
+          height: 460
+        },
+        [mw[0]]: {
+          height: 249
+        }
       }
     },
     moves: {
-      marginTop: 50,
-      [mw[0]]: {
-        marginTop: 40
-      }
+      marginTop: 20,
     },
     movesTitle: {
       fontWeight: 300,
@@ -175,6 +253,11 @@ const Detail = () => {
       [mw[0]]: {
         fontSize: 16,
         textAlign: 'center'
+      },
+      '& .MuiSkeleton-root': {
+        [mw[0]]: {
+          margin: '0 auto'
+        }
       }
     },
     tags: {
@@ -183,6 +266,15 @@ const Detail = () => {
       flexWrap: 'wrap',
       [mw[0]]: {
         justifyContent: 'center'
+      },
+      '& .MuiSkeleton-root': {
+        height: 31,
+        width: 100,
+        borderRadius: 16,
+        margin: '0 10px 10px 0',
+        [mw[0]]: {
+          margin: 5,
+        },
       }
     },
     tag: {
@@ -237,7 +329,11 @@ const Detail = () => {
   };
 
   const handleCapture = () => {
-    setResult(Math.random());
+    setLoadingCapture(true);
+    setTimeout(() => {
+      setLoadingCapture(false);
+      setResult(Math.random());
+    }, 3000);
   };
 
   useEffect(() => {
@@ -248,6 +344,7 @@ const Detail = () => {
           setData(res.data);
           setTypes(res.data.types.map(item => item.type.name));
           setMoves(res.data.moves.map(item => item.move.name));
+          setLoading(false);
         })
         .catch(err => {
           console.log(err);
@@ -272,38 +369,85 @@ const Detail = () => {
         <div css={classes.backInfo}>Pokédex</div>
       </div>
       <div style={{position:'relative'}}>
-        <div css={classes.name}>{data && formatName(data.name)}</div>
-        <div css={classes.id}>#{data && roundingNumber(data.id)}</div>
+        <div css={classes.name}>
+          {loading ? <Skeleton width={200} animation='wave' /> : formatName(data.name)}
+        </div>
+        <div css={classes.id}>
+          {loading ? <Skeleton width={47} animation='wave' /> : `#${roundingNumber(data.id)}`}
+        </div>
       </div>
-      <div css={classes.img}>
-        <div css={classes.nameImg}>{data && data.name.toUpperCase()}</div>
-        <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${data && roundingNumber(data.id)}.png`} alt={data && formatName(data.name)}/>
-      </div>
+      {loading ? (
+        <div css={classes.img}>
+          <Skeleton variant='rect' animation='wave' />
+        </div>
+      ) : (
+        <div css={classes.img}>
+          <div css={classes.nameImg}>{data && data.name.toUpperCase()}</div>
+          <img src={`https://assets.pokemon.com/assets/cms2/img/pokedex/full/${data && roundingNumber(data.id)}.png`} alt={data && formatName(data.name)}/>
+        </div>
+      )}
       <div css={classes.infoContainer}>
         <div css={classes.left}>
-          {types.map(item => <Tags type={item} />)}
+          {loading ? [1,2].map(item => <Skeleton variant='rect' animation='wave' />) : types.map(item => <Tags type={item} />)}
         </div>
         <div css={classes.right}>
           <div style={{width:`${100/3}%`}}>
-            <div css={classes.infoTitle}>Height</div>
-            <div css={classes.info}>{data && data.height/10} m</div>
+            <div css={classes.infoTitle}>
+              {loading ? <Skeleton animation='wave' /> : 'Height'}
+            </div>
+            <div css={classes.info}>
+              {loading ? <Skeleton animation='wave' /> : `${data.height/10} m`}
+            </div>
           </div>
           <div style={{width:`${100/3}%`}}>
-            <div css={classes.infoTitle}>Weight</div>
-            <div css={classes.info}>{data && data.weight/10} kg</div>
+            <div css={classes.infoTitle}>
+              {loading ? <Skeleton animation='wave' /> : 'Weight'}
+            </div>
+            <div css={classes.info}>
+              {loading ? <Skeleton animation='wave' /> : `${data.weight/10} kg`}
+            </div>
           </div>
           <div style={{width:`${100/3}%`}}>
-            <div css={classes.infoTitle}>Abilities</div>
-            <div css={classes.info}>{data && formatName(data.abilities[0].ability.name)}</div>
+            <div css={classes.infoTitle}>
+              {loading ? <Skeleton animation='wave' /> : 'Abilities'}
+            </div>
+            <div css={classes.info}>
+              {loading ? <Skeleton animation='wave' /> : formatName(data.abilities[0].ability.name)}
+            </div>
           </div>
         </div>
       </div>
-      <div css={classes.moves}>
-        <div css={classes.movesTitle}>Moves</div>
-        <div css={classes.tags}>
-          {readMore ? moves.map(item => <div css={classes.tag}>{formatName(item)}</div>) : moves.slice(0,20).map(item => <div css={classes.tag}>{formatName(item)}</div>)}
-          {!readMore && moves.length > 20 && <div css={classes.tagClick} title='Read More' onClick={() => setReadMore(true)}>...</div>}
+      <div css={classes.stats}>
+        <div css={classes.movesTitle}>
+          {loading ? <Skeleton width={100} animation='wave' /> : 'Base Stats'}
         </div>
+        <div css={classes.chart}>
+          {loading ? <Skeleton variant='rect' animation='wave' /> : (
+            <Chart
+              series={[
+                {
+                  name: data ? data.name : '',
+                  data: data ? data.stats.map(item => item.base_stat) : []
+                }
+              ]}
+            />
+          )}
+        </div>
+      </div>
+      <div css={classes.moves}>
+        <div css={classes.movesTitle}>
+          {loading ? <Skeleton width={100} animation='wave' /> : 'Moves'}
+        </div>
+        {loading ? (
+          <div css={classes.tags}>
+            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(item => <Skeleton variant='rect' animation='wave' />)}
+          </div>
+        ) : (
+          <div css={classes.tags}>
+            {readMore ? moves.map(item => <div css={classes.tag}>{formatName(item)}</div>) : moves.slice(0,20).map(item => <div css={classes.tag}>{formatName(item)}</div>)}
+            {!readMore && moves.length > 20 && <div css={classes.tagClick} title='Read More' onClick={() => setReadMore(true)}>...</div>}
+          </div>  
+        )}
       </div>
       <Slide direction='up' in={location.pathname.includes('/detail')}>
         <Button
@@ -311,7 +455,6 @@ const Detail = () => {
           color='secondary'
           variant='contained'
           onClick={handleCapture}
-          // disabled
         >
           CAPTURE
         </Button>
@@ -340,6 +483,10 @@ const Detail = () => {
           setFailModal(false);
           setResult(null);
         }}
+      />
+      <Loading
+        open={loadingCapture}
+        onClose={() => setLoadingCapture(false)}
       />
     </Container>
   );

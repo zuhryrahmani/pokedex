@@ -7,6 +7,7 @@ import axios from 'axios';
 import InfiniteScroll from 'react-infinite-scroller';
 import { Fab, Slide } from '@material-ui/core';
 import { NavigationRounded } from '@material-ui/icons';
+import { Skeleton } from '@material-ui/lab';
 
 // components
 import Container from '../../components/Container';
@@ -66,11 +67,6 @@ const Detail = () => {
       zIndex: 1,
       boxShadow: '0 0 18px 8px rgba(0,0,0,0.2)'
     },
-    load: {
-      color: '#F7B916',
-      textAlign: 'center',
-      marginTop: 50
-    },
     fab: {
       '&.MuiButtonBase-root': {
         position: 'fixed',
@@ -81,6 +77,22 @@ const Detail = () => {
           right: 20,
         }
       }
+    },
+    loading: {
+      width: 'fit-content',
+      paddingTop: 100,
+      marginBottom: 5,
+      boxSizing: 'border-box',
+      [mw[0]]: {
+        paddingTop: 60
+      },
+      '& .MuiSkeleton-root': {
+        borderRadius: 25,
+        [mw[0]]: {
+          width: '130px !important',
+          height: '110px !important',
+        }
+      },
     }
   };
 
@@ -90,6 +102,7 @@ const Detail = () => {
   const [prev, setPrev] = useState(null);
   const [scroll, setScroll] = useState(0);
   const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   const generateData = () => {
     axios.get(next)
@@ -115,6 +128,7 @@ const Detail = () => {
         setData(res.data.results);
         setNext(res.data.next);
         setPrev(res.data.previous);
+        setLoading(false);
       })
       .catch(err => {
         console.log(err);
@@ -154,19 +168,35 @@ const Detail = () => {
         </div>
       </div>
       <div css={classes.list}>
-        {data.map(item => (
-          <Card
-            name={formatName(item.name)}
-            id={roundingNumber(item.url.slice(34, -1))}
-            onClick={() => clickPokemon(item.name)}
-          />
-        ))}
+        {loading ? (
+          [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(item => (
+            <div css={classes.loading}>
+              <Skeleton variant='react' width={240} height={155} animation='wave' />
+            </div>
+          ))
+        ) : (
+          data.map(item => (
+            <Card
+              name={formatName(item.name)}
+              id={roundingNumber(item.url.slice(34, -1))}
+              onClick={() => clickPokemon(item.name)}
+            />
+          ))
+        )}
       </div>
       <InfiniteScroll
         initialLoad={false}
         loadMore={generateData}
         hasMore={data.length === 898 ? false : true}
-        loader={<p css={classes.load}>Load more ...</p>}
+        loader={
+          <div css={classes.list} style={{paddingTop:0}}>
+            {[1,2,3,4].map(item => (
+              <div css={classes.loading}>
+                <Skeleton variant='react' width={240} height={155} animation='wave' />
+              </div>
+            ))}
+          </div>
+        }
       />
       <Slide direction='up' in={scroll >= 100} mountOnEnter unmountOnExit>
         <Fab color='secondary' size='medium' css={classes.fab} onClick={() => document.scrollingElement.scrollTop = 0}>

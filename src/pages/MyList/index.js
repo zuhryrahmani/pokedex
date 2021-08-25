@@ -5,10 +5,15 @@ import React, { useState, useEffect, useContext } from 'react';
 import { css, jsx } from '@emotion/react';
 import axios from 'axios';
 import { Hooks } from '../../providers';
+import { Skeleton } from '@material-ui/lab';
 
 // components
 import Container from '../../components/Container';
 import MyCard from '../../components/MyCard';
+import ConfirmationModal from '../../components/Modals/ConfirmationModal';
+
+// assets
+import pokemon from '../../assets/icons/pokemon-gray.svg';
 
 const MyList = () => {
 
@@ -42,11 +47,13 @@ const MyList = () => {
       display: 'flex'
     },
     center: {
+      position: 'relative',
       margin: 'auto',
       height: 400,
       width: '100%',
       overflowY: 'hidden',
       overflowX: 'auto',
+      scrollbarWidth: 'none',
       '&::-webkit-scrollbar': {
         display: 'none'
       },
@@ -58,12 +65,64 @@ const MyList = () => {
       height: '100%',
       width: 'fit-content',
       display: 'flex'
+    },
+    icon: {
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      transform: 'translate(-50%, -50%)',
+      '& img': {
+        width: 70,
+        [mw[0]]: {
+          width: 60
+        }
+      },
+      '& .container': {
+        width:'fit-content',
+        position:'relative',
+        margin: '0 auto'
+      },
+      '& .que': {
+        position: 'absolute',
+        right: 20,
+        top: 0,
+        color: '#95A8B1',
+        fontSize: 20,
+        fontWeight: 900,
+        transform: 'rotate(10deg)',
+        [mw[0]]: {
+          right: 17,
+          fontSize: 18
+        }
+      },
+      '& p': {
+        color: '#95A8B1',
+        textAlign: 'center',
+        [mw[0]]: {
+          fontSize: 14
+        }
+      }
+    },
+    loading: {
+      paddingTop: 100,
+      '& .MuiSkeleton-root': {
+        width: 240,
+        height: 280,
+        borderRadius: 25,
+        [mh[0]]: {
+          width: 190,
+          height: 220
+        }
+      }
     }
   };
 
   const [owned, setOwned] = useState([]);
   const [species, setSpecies] = useState([]);
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [chosenPokemon, setChosenPokemon] = useState('');
   const {data, setData} = useContext(Hooks);
 
   const handleRelease = (item) => {
@@ -88,24 +147,31 @@ const MyList = () => {
 
 
   useEffect( async () => {
-    species.length > 0 && species.forEach((item, i) => {
-      axios.get(`https://pokeapi.co/api/v2/pokemon/${item}`)
-      .then(res => {
-        setData(oldArr => {
-          const arr = [];
-          oldArr.map(item => {
-            if(item.name !== res.data.name) {
-              arr.push(item);
-            };
+    if(species.length > 0) {
+      setLoading(true);
+      species.forEach((item, i) => {
+        axios.get(`https://pokeapi.co/api/v2/pokemon/${item}`)
+        .then(res => {
+          setData(oldArr => {
+            const arr = [];
+            oldArr.map(item => {
+              if(item.name !== res.data.name) {
+                arr.push(item);
+              };
+            });
+            return [...arr, res.data];
           });
-          return [...arr, res.data];
+          if(i === species.length-1) {
+            setLoading(false);
+          };
+          return;
         })
-        return
-      })
-      .catch(err => {
-        console.log(err);
+        .catch(err => {
+          console.log(err);
+          setLoading(false);
+        });
       });
-    });
+    };
   }, [species]);
 
   useEffect(() => {
@@ -135,17 +201,42 @@ const MyList = () => {
       <div css={classes.container}>
         <div css={classes.center}>
           <div css={classes.scroll}>
-            {results.map((item, i) => (
-              <MyCard
-                data={item.data}
-                nickname={item.nickname}
-                style={{margin:`0 20px 0 ${i===0 ? '20px' : 0}`}}
-                handleRelease={() => handleRelease(item)}
-              />
-            ))}
+            {loading ? [1,2,3,4,5,6,7,8,9,10].map((item, i) => (
+                <div css={classes.loading} style={{margin:`0 20px 0 ${i===0 ? '20px' : 0}`}}>
+                  <Skeleton variant='rect' animation='wave' />
+                </div>
+              )) : results.length > 0 ? results.map((item, i) => (
+                <MyCard
+                  data={item.data}
+                  nickname={item.nickname}
+                  style={{margin:`0 20px 0 ${i===0 ? '20px' : 0}`}}
+                  handleRelease={() => {
+                    setChosenPokemon(item);
+                    setModal(true);
+                  }}
+                />
+              )) : (
+                <div css={classes.icon}>
+                  <div className='container'>
+                    <div className='que'>?</div>
+                    <img src={pokemon} />
+                  </div>
+                  <p>you do not have any pokemon yet.</p>
+                </div>
+              )
+            }
           </div>
         </div>
       </div>
+      <ConfirmationModal
+        open={modal}
+        onClose={() => setModal(false)}
+        onContinue={() => {
+          handleRelease(chosenPokemon);
+          setModal(false);
+        }}
+        name={chosenPokemon.nickname}
+      />
     </div>
   );
 };
